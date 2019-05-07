@@ -21,3 +21,8 @@ h2 {
     width:100%;
     margin:0;
 }
+
+.spacer {
+     padding-top: 80px;
+     padding-bottom: 40px
+ }
