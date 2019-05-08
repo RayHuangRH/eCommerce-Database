@@ -6,6 +6,11 @@ h2 {
     margin-top:1rem;
 }
 
+.container{
+    padding-left:50px;
+    padding-right:50px;
+}
+
 .dropdown-date {
     margin-top:3rem;
     margin-left:1rem;
@@ -16,3 +21,8 @@ h2 {
     width:100%;
     margin:0;
 }
+
+.spacer {
+     padding-top: 80px;
+     padding-bottom: 40px
+ }

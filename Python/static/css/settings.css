@@ -4,9 +4,7 @@
         margin-bottom: 10px; /* Added */
 }
 
-footer{
-   margin-top:3rem;
-}
+
 
 .jumbotron {
     width:100%;
@@ -30,4 +28,8 @@ form h4{
 .profile-image{
     margin-top:3rem;
     margin-bottom:1rem;
+}
+
+h5{
+    text-align:center;
 }

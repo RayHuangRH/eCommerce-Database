@@ -1,4 +1,6 @@
 import pymysql
+import datetime
+import time
 
 
 def insert():
@@ -38,19 +40,26 @@ def select():
 # insert()
 # select()
 
-def getCustomerTable():
+def insertOrders():
     client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
-    try:
-        cursor = client.cursor()
-        query = "SELECT CustomerID, Userpass, HasMembership FROM Customer"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        for row in results:
-            print(row[0])
-    except Exception:
-        print("Could not retrieve Customer Table data")
-    finally:
-        client.close()
+    #try:
+    cursor = client.cursor()
+    newmem = 'Y'
+    query = "SELECT R.OrderID, R.ItemID, R.Quantity, R.Comments, I.ItemType, I.Price " \
+            "FROM Returnment R, Orders O, Item I " \
+            "WHERE O.OrderNum = R.OrderID AND O.CustomerID = %s AND I.ItemID = R.ItemID"
+    cursor.execute(query)
+    results = cursor.fetchall()
+    for row in results:
+        print(row[0], row[1], row[2], row[3], row[4], row[5])
+    #except Exception:
+     #   print("Could not add entity to Orders Table")
+     #   client.rollback()
+    #finally:
+    client.close()
 
 
-getCustomerTable()
+#now = datetime.now()
+insertOrders()
+
+datetime.datetime.strptime('01' + '05/19', '%d%m/%y').date()

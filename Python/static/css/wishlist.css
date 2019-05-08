@@ -1,11 +1,12 @@
-.card mt-4{
+.card{
         margin: 0 auto; /* Added */
         float: none; /* Added */
         margin-bottom: 10px; /* Added */
 }
 
-footer{
-   margin-top:3rem;
+.container{
+    padding-left:50px;
+    padding-right:50px
 }
 
 .jumbotron {
@@ -16,3 +17,12 @@ footer{
 .alert {
     margin-top:1rem;
 }
+
+.carousel-text{
+    color:black;
+}
+
+.spacer {
+     padding-top: 80px;
+     padding-bottom: 40px
+ }
