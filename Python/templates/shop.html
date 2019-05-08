@@ -16,12 +16,14 @@
                 {% endfor %}
             </div>
 
+            {% if employee %}
             <button style="margin-top:1rem;" data-toggle="modal" data-target="#addItemModal" type="button"
                     class="btn btn-success btn-lg">Add Item
             </button>
             <button style="margin-top:1rem;" data-toggle="modal" data-target="#addDiscountModal" type="button"
                     class="btn btn-primary btn-lg">Add Discount
             </button>
+            {% endif %}
 
         </div>
         <!-- /.col-lg-3 -->
@@ -59,8 +61,8 @@
                 {% for item in data %}
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100">
-                        <a href="/item.html"><img class="card-img-top" src="static/images/items/{{ item[3] }}.png"
-                                                  alt=""></a>
+                        <a href="/item.html?type={{ item[0] }}&price={{ item[1] }}&desc={{ item[2] }}&id={{ item[3] }}">
+                            <img class="card-img-top" src="static/images/items/{{ item[3] }}.png"alt=""></a>
                         <div class="card-body">
                             <h4 class="card-title">
                                 <a href="/item.html?type={{ item[0] }}&price={{ item[1] }}&desc={{ item[2] }}&id={{ item[3] }}">
@@ -79,20 +81,6 @@
         <!-- /.col-lg-9 -->
 
     </div>
-    <!-- /.row -->
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Previous</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-            </li>
-        </ul>
-    </nav>
 </div>
 <!-- /.container -->
 
@@ -195,11 +183,4 @@
     </div>
 </div>
 
-<!-- Footer -->
-<footer class="py-5 bg-dark">
-    <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; Raymond Huang, Gurpreeth Singh, Tenzin Loden 2019</p>
-    </div>
-    <!-- /.container -->
-</footer>
 {% endblock content %}
