@@ -338,7 +338,7 @@ def shop():
     if request.method == 'POST':
         if 'additem' in request.form:
             itemtable = getItemTable()
-            itemid = len(itemtable)
+            itemid = len(itemtable) + 1
             itemquantity = request.form['itemquantity']
             itemprice = request.form['itemprice']
             itemtype = request.form['itemtype']
@@ -422,11 +422,24 @@ def item():
             finally:
                 client.close()
                 return redirect('/shop.html')
+        elif 'deleteReview' in request.form:
+            customerid = request.form['customer']
+            itemid = request.form['reviewitemid']
+            client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
+            try:
+                cursor = client.cursor()
+                query = "DELETE FROM Reviews WHERE CustomerID = %s AND ItemID = %s"
+                cursor.execute(query, (customerid, itemid))
+                client.commit()
+            except Exception:
+                print("Can not delete Review")
+            finally:
+                client.close()
     if 'type' and 'price' and 'desc' and 'id' in request.args:
         client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
         try:
             cursor = client.cursor()
-            query = "SELECT R.Comments, P.Named, R.Ratings FROM Reviews R, Person P " \
+            query = "SELECT R.Comments, P.Named, R.Ratings, R.CustomerID FROM Reviews R, Person P " \
                     "WHERE ItemID = %s AND R.CustomerID = P.ID"
             cursor.execute(query, request.args['id'])
             reviews = cursor.fetchall()
@@ -713,16 +726,36 @@ def settings():
                            title='Settings', styles='settings.css', bodyclass='bg-light')
 
 
-@app.route("/returns.html")
+@app.route("/returns.html", methods=['GET', 'POST'])
 def returns():
     global employee
     result = None
     if employee:
+        if request.method == 'POST':
+            orderid = request.form['orderid']
+            itemid = request.form['itemid']
+            approval = 'NULL'
+            if 'reject' in request.form:
+                approval = 'N'
+            elif 'approve' in request.form:
+                approval = 'Y'
+            client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
+            try:
+                cursor = client.cursor()
+                query = "UPDATE Returnment SET Approval = %s WHERE OrderID = %s AND ItemID = %s"
+                cursor.execute(query, (approval, orderid, itemid))
+                result = cursor.fetchall()
+                client.commit()
+            except Exception:
+                print("Could not update Approval in Returnment Entity")
+            finally:
+                client.close()
         client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
         try:
             cursor = client.cursor()
-            query = "SELECT R.OrderID, R.ItemID, R.Quantity, R.Comments, I.ItemType, I.Price " \
-                    "FROM Returnment R, Orders O, Item I WHERE O.OrderNum = R.OrderID AND I.ItemID = R.ItemID"
+            query = "SELECT R.OrderID, R.ItemID, R.Quantity, R.Comments, R.Approval, I.ItemType, I.Price, " \
+                    "O.CustomerID, O.OrderDate FROM Returnment R, Orders O, Item I " \
+                    "WHERE O.OrderNum = R.OrderID AND I.ItemID = R.ItemID"
             cursor.execute(query)
             result = cursor.fetchall()
         except Exception:
@@ -733,11 +766,12 @@ def returns():
         client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
         try:
             cursor = client.cursor()
-            query = "SELECT R.OrderID, R.ItemID, R.Quantity, R.Comments, I.ItemType, I.Price " \
+            query = "SELECT R.OrderID, R.ItemID, R.Quantity, R.Comments, I.ItemType, I.Price, R.Approval, O.OrderDate " \
                     "FROM Returnment R, Orders O, Item I " \
                     "WHERE O.OrderNum = R.OrderID AND O.CustomerID = %s AND I.ItemID = R.ItemID"
             cursor.execute(query, loggedinid)
             result = cursor.fetchall()
+            print(result)
         except Exception:
             print("Could not retrieve specified Returnment Entity")
         finally:
@@ -768,6 +802,19 @@ def thankyou():
 
 @app.route("/pendingorder.html", methods=['GET', 'POST'])
 def pendingorder():
+    if request.method == 'POST':
+        if 'complete' in request.form:
+            orderid = request.form['order']
+            client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
+            try:
+                cursor = client.cursor()
+                query = "UPDATE Orders SET Completed = 'Y' WHERE OrderNum = %s"
+                cursor.execute(query, orderid)
+                client.commit()
+            except Exception:
+                print("Can not update Completed in Orders")
+            finally:
+                client.close()
     client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
     try:
         cursor = client.cursor()
@@ -808,19 +855,6 @@ def pendingorder():
             if shipment[0] == order[0]:
                 order.append(shipment)
         orders.append(order)
-    if request.method == 'POST':
-        if 'complete' in request.form:
-            orderid = request.form['order']
-            client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
-            try:
-                cursor = client.cursor()
-                query = "UPDATE Orders SET Completed = 'Y' WHERE OrderNum = %s"
-                cursor.execute(query, orderid)
-                client.commit()
-            except Exception:
-                print("Can not update Completed in Orders")
-            finally:
-                client.close()
     return render_template('pendingorder.html', orders=orders, employee=employee, loggedin=loggedinname, title='Pending Orders', styles='returns.css',
                            bodyclass='bg-light')
 
@@ -1314,7 +1348,7 @@ def insertReturnment(orderid, itemid, quantity, comments):
     client = pymysql.connect("localhost", "public", "password123", "eCommerce01")
     try:
         cursor = client.cursor()
-        query = "INSERT INTO Returnment(OrderID, ItemID, Quantity, Comments) values(%s, %s, %s, %s)"
+        query = "INSERT INTO Returnment(OrderID, ItemID, Quantity, Comments, Approval) values(%s, %s, %s, %s, NULL)"
         cursor.execute(query, (orderid, itemid, quantity, comments))
         client.commit()
     except Exception:
